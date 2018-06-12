@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static com.mmall.util.MD5Util.MD5EncodeUtf8;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 /**
  * Created by gjw19 on 2017/8/25.
  */
@@ -33,7 +36,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         // 登录md5加密
-        String md5Password = MD5Util.MD5EncodeUtf8(password);
+        String md5Password = MD5EncodeUtf8(password);
         // 检验用户名、密码一致性
         User user = userMapper.selectLogin(username, md5Password);
         if (user == null) {
@@ -60,7 +63,7 @@ public class UserServiceImpl implements IUserService {
         // role的类型
         user.setRole(Const.Role.ROLE_CUSTOMER);
         //MD5加密
-        user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
+        user.setPassword(MD5EncodeUtf8(user.getPassword()));
         int resultCount = userMapper.insert(user);
         if (resultCount == 0) {
             return ServerResponse.createByErrorMessage("注册失败");
@@ -70,7 +73,7 @@ public class UserServiceImpl implements IUserService {
 
     public ServerResponse<String> checkValid(String str, String type) {
         // 使用isNotBlank传空值为假
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(type)) {
+        if (isNotBlank(type)) {
             //开始校验
             if (Const.USERNAME.equals(type)) {
                 int resultCount = userMapper.checkUsername(str);
@@ -98,7 +101,7 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("用户不存在");
         }
         String question = userMapper.selectQuestionByUsername(username);
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(question)) {
+        if (isNotBlank(question)) {
             return ServerResponse.createBySuccess(question);
         }
         return ServerResponse.createByErrorMessage("找回密码的问题是空的");
@@ -131,7 +134,7 @@ public class UserServiceImpl implements IUserService {
         }
         // StringUtils可以防止空指针异常
         if (StringUtils.equals(forgetToken, token)) {
-            String md5Password = MD5Util.MD5EncodeUtf8(passwordNew);
+            String md5Password = MD5EncodeUtf8(passwordNew);
             // 密码需要使用新更改的md5加密的密码
             int rowCount = userMapper.updatePasswordByUsername(username, md5Password);
 
@@ -146,11 +149,11 @@ public class UserServiceImpl implements IUserService {
 
     public ServerResponse<String> resetPassword(String passwordOld, String passwordNew, User user) {
         //防止横向越权，要校验一下这个用户的旧密码，一定要指定是这个用户，因为我们会查询一个count（1）,如果不是指定id，那么结果就是true（count>0)
-        int resultCount = userMapper.checkPassword(MD5Util.MD5EncodeUtf8(passwordOld), user.getId());
+        int resultCount = userMapper.checkPassword(MD5EncodeUtf8(passwordOld), user.getId());
         if (resultCount == 0) {
             return ServerResponse.createByErrorMessage("旧密码错误");
         }
-        user.setPassword(MD5Util.MD5EncodeUtf8(passwordNew));
+        user.setPassword(MD5EncodeUtf8(passwordNew));
         int updateCount = userMapper.updateByPrimaryKeySelective(user);
         if (updateCount > 0) {
             return ServerResponse.createBySuccessMessage("密码更新成功");

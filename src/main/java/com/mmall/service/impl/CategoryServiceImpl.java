@@ -87,6 +87,7 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     //递归算法，算出子节点
+    // 对于Category需要重写hashCode和equal方法
     private Set<Category> findChildCategory(Set<Category> categorySet, Integer categoryId) {
         Category category = categoryMapper.selectByPrimaryKey(categoryId);
         if (category != null) {

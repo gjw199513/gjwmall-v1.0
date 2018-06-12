@@ -31,7 +31,7 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "login.do", method = RequestMethod.POST)
-    // 将返回值序列化为json
+    // 自动通过springmvc的jackson插件将返回值序列化为json
     @ResponseBody
     // 传入session
     public ServerResponse<User> login(String username, String password, HttpSession session) {
@@ -138,6 +138,7 @@ public class UserController {
         if (currentUser == null) {
             return ServerResponse.createByErrorMessage("用户未登录");
         }
+        // 由于传入的user没有id，需要将当前登录user的id传入
         user.setId(currentUser.getId());
         user.setUsername(currentUser.getUsername());
         ServerResponse<User> response = iUserService.updateInformation(user);
